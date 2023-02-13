@@ -29,7 +29,7 @@ library("tidyverse")
 library("dygraphs")
 
 #mengambil data dari file
-url = "https://github.com/MoDHer/SP500_2019-2022/blob/main/SP500_2019-2022.xlsx"
+url = "https://github.com/MoDHer/SP500_2019-2022/blob/main/SP500_2019-2022.xlsx?raw=true"
 sp500 = read.xlsx(url)
 #membuat variable time series
 close = sp500$Close
