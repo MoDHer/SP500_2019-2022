@@ -9,7 +9,7 @@ install.packages("forecast")
 install.packages("TSA")
 install.packages("tseries")
 install.packages("xts")
-install.packages("readxl")
+install.packages("openxlsx")
 install.packages("tidyverse")
 install.packages("dygraphs")
 
@@ -24,13 +24,13 @@ library("forecast")
 library("TSA")
 library("tseries")
 library("xts")
-library("readxl")
+library("openxlsx")
 library("tidyverse")
 library("dygraphs")
 
 #mengambil data dari file
-sp500 = read_excel("C:/Users/modhe/OneDrive - Universitas Airlangga/Dokumen/Kuliah/Semester 6/ARW Lan/Kelompok/SP500_2019-2022.xlsx")
-
+url = "https://github.com/MoDHer/SP500_2019-2022/blob/main/SP500_2019-2022.xlsx"
+sp500 = read.xlsx(url)
 #membuat variable time series
 close = sp500$Close
 tsclose = ts(close)
