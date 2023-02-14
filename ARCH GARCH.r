@@ -38,55 +38,73 @@ view(tsclose)
 
 #melihat plot dan deteksi stasioneritas
 ts.plot(tsclose)
-adf.test(tsclose)
+adf.test(tsclose) #hasil tidak stasioner
 acf(tsclose)
 pacf(tsclose)
-
 #transformasi differencing 1, karena Box-cox (lambda=1) yang telah diuji pada Minitab 18
-diff_close = diff(tsclose)
-ts.plot(diff_close)
-adf.test(diff_close)
-acf(diff_close)
-pacf(diff_close)
-eacf(diff_close)
+diff1_close = diff(tsclose)
+ts.plot(diff1_close)
+adf.test(diff1_close)
+acf(diff1_close)
+pacf(diff1_close)
+diff2_close = diff(diff1_close)
+acf(diff2_close)
+pacf(diff2_close)
+eacf(diff2_close)
 
-#Plot menunjukan model IMA(0, 1, 1)
-model011 = arima(diff_close, order = c(0,0,1), include.mean = FALSE)
+#Minitab 18 menunjukan model ARIMA(1, 2, 2) adalah model terbaik
+#dengan parameter yang signikan, white noise, dan MSE terkecil
+model_021 = arima(diff2_close, order = c(0,0,1), include.mean = FALSE)
+model_022 = arima(diff2_close, order = c(0,0,2), include.mean = FALSE)
+model_120 = arima(diff2_close, order = c(1,0,0), include.mean = FALSE)
+model_121 = arima(diff2_close, order = c(1,0,1), include.mean = FALSE)
+model_122 = arima(diff2_close, order = c(1,0,2), include.mean = FALSE)
 
 #Diagnosa
-coeftest(model011)
-Box.test(model011$residuals,type = "Ljung")
-ks.test(model011$residuals, ecdf(model011$residuals))
-AutocorTest(diff_close)
+coeftest(model_021)
+coeftest(model_022)
+coeftest(model_120)
+coeftest(model_121)
+coeftest(model_122)
+#parameter sinifikan adalah model ARI(1,2) dan IMA(2,1)
+
+#White noise
+Box.test(model_120$residuals,type = "Ljung") #hasil tidak white noise
+Box.test(model_021$residuals,type = "Ljung") #hasil white noise
+
+#Uji Box-Ljung
+AutocorTest(diff2_close) #data tidak normal
 
 #Menguji kenormalan residual
-jarque.bera.test(residuals(model011))
+jarque.bera.test(residuals(model_021)) #residual tidak normal
 
 #menguji efek arch
-arch.test(model011)
-ArchTest(diff_close)
+arch.test(model_021)
+ArchTest(diff2_close) #ada efek heteroskedastisitas
 for(i in 1:12)
 {
-    AT = ArchTest(diff_close, lags = i, demean = TRUE)
+    AT = ArchTest(diff2_close, lags = i, demean = TRUE)
     cat("P Value LM Test lag ke", i , "adalah", AT$p.value, "\n")
 }
 #P-Value < 0,05 menunjukkan ada efek ARCH
 
 #Melanjutkan ke GARCH karena residual tidak normal
-model_garch_10 = garchFit(~arma(0,1)+garch(1,0), data = diff_close, trace = F)
+model_garch_10 = garchFit(~arma(0,1)+garch(1,0), data = diff2_close, trace = F)
 summary(model_garch_10)
 
-model_garch_11 = garchFit(~arma(0,1)+garch(1,1), data = diff_close, trace = F)
+model_garch_11 = garchFit(~arma(0,1)+garch(1,1), data = diff2_close, trace = F)
 summary(model_garch_11)
 
-model_garch_12 = garchFit(~arma(0,1)+garch(1,2), data = diff_close, trace = F)
+model_garch_12 = garchFit(~arma(0,1)+garch(1,2), data = diff2_close, trace = F)
 summary(model_garch_12)
 
-model_garch_20 = garchFit(~arma(0,1)+garch(2,0), data = diff_close, trace = F)
+model_garch_20 = garchFit(~arma(0,1)+garch(2,0), data = diff2_close, trace = F)
 summary(model_garch_20)
 
-model_garch_21 = garchFit(~arma(0,1)+garch(2,1), data = diff_close, trace = F)
+model_garch_21 = garchFit(~arma(0,1)+garch(2,1), data = diff2_close, trace = F)
 summary(model_garch_21)
 
-model_garch_22 = garchFit(~arma(0,1)+garch(2,2), data = diff_close, trace = F)
+model_garch_22 = garchFit(~arma(0,1)+garch(2,2), data = diff2_close, trace = F)
 summary(model_garch_22)
+
+#model terpilih adalah ARIMA(0, 2, 1) + GARCH(1, 1)
