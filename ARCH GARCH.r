@@ -12,7 +12,7 @@ install.packages("xts")
 install.packages("openxlsx")
 install.packages("tidyverse")
 install.packages("dygraphs")
-#test
+#tes revisi
 
 #memakai library yang telah diinstall
 library("prettydoc")
